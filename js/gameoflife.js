@@ -9,11 +9,11 @@ function same([x, y], [j, k]) {
 
 // The game state to search for `cell` is passed as the `this` value of the function.
 function contains(cell) {
-  return this.some((c) => same(c), cell);
+  return this.some((c) => same(c, cell));
 }
 
 const printCell = (cell, state) => {
-  return contains.call(state, cell) ? "\u25A3": "u25A2";
+  return contains.call(state, cell) ? "\u25A3": "\u25A2";
 };
 
 const corners = (state = []) => {
@@ -33,11 +33,11 @@ const corners = (state = []) => {
 };
 
 const printCells = (state) => {
-  const { bottomLeft, topRight} = corners(state);
+  const { bottomLeft, topRight } = corners(state);
   let accumulater = "";
   for (let y = topRight[1]; y >= bottomLeft[1]; y--) {
     let row = [];
-    for (let x = bottomLeft[0]; x <=topRight[0]; x++) {
+    for (let x = bottomLeft[0]; x <= topRight[0]; x++) {
       row.push(printCell([x,y], state));
     }
     accumulater += row.join(" ") + "\n";
@@ -52,7 +52,7 @@ const getNeighborsOf = ([x, y]) => [
 ];
 
 const getLivingNeighbors = (cell, state) => {
-  return getNeighborsOf(cell).filter((n) => corners.bind(state)(n));
+  return getNeighborsOf(cell).filter((n) => contains.bind(state)(n));
 };
 
 const willBeAlive = (cell, state) => {
@@ -60,7 +60,7 @@ const willBeAlive = (cell, state) => {
 
   return (
     livingNeighbors.length === 3 ||
-    (contains.cell(state,cell) && livingNeighbors.length === 2)
+    (contains.call(state,cell) && livingNeighbors.length === 2)
   );
 };
 
@@ -78,7 +78,7 @@ const calculateNext = (state) => {
 const iterate = (state, iterations) => {
   const states = [state];
   for (let i = 0; i < iterations; i++) {
-    state.push(calculateNext(states[state.length - 1]));
+    states.push(calculateNext(states[states.length - 1]));
   }
   return states;
 };
